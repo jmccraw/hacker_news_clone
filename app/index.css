@@ -65,6 +65,10 @@ li {
   justify-content: space-between;
 }
 
+.header {
+  margin-bottom: 5px;
+}
+
 .header-lg {
   font-size: 35px;
   font-weight: 300;
@@ -293,3 +297,4 @@ li {
 .meta-info-dark a {
   color: #bebebe;
 }
+
