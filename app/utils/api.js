@@ -45,7 +45,10 @@ export function fetchMainPosts( type ) {
 
 export function fetchUser( id ) {
   return fetch( `${api}/user/${id}${json}` )
-    .then( res => res.json() );
+    .then( res => res.json() )
+    .catch( () => {
+      throw new Error ( `No user found with ID: ${id}` );
+    } );
 }
 
 export function fetchPosts( ids ) {
