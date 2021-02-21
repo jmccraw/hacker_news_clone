@@ -3,7 +3,8 @@ import queryString from 'query-string';
 import { fetchUser, fetchPosts } from '../utils/api';
 import { ThemeConsumer } from '../contexts/theme';
 import Loading from './Loading';
-import PostsList from './PostsList';
+import { PostsList } from './PostsList';
+import { getFormattedDate } from '../utils/date';
 
 function UserProfile({ name, dateCreated, karma, about }) {
   return (
@@ -12,9 +13,9 @@ function UserProfile({ name, dateCreated, karma, about }) {
         <>
           <h1 className="header">{name}</h1>
           <p className={`meta-info-${theme}`}>
-            joined <strong>{new Date( dateCreated ).toUTCString()}</strong> and has <strong>{karma}</strong> karma
+            joined <strong>{getFormattedDate( dateCreated )}</strong> and has <strong>{karma}</strong> karma
           </p>
-          {about && <p>{about}</p>}
+          {about && <p dangerouslySetInnerHTML={{__html: about}} />}
         </>
       )}
     </ThemeConsumer>
