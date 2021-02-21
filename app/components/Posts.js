@@ -1,7 +1,7 @@
 import React from 'react';
 import { fetchMainPosts } from '../utils/api';
 import Loading from './Loading';
-import PostsList from './PostsList';
+import { PostsList } from './PostsList';
 
 
 export default class Posts extends React.Component {
