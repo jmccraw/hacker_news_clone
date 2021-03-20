@@ -1,6 +1,8 @@
 # Hacker News Clone in React
 A React app clone of Hacker News as the final project in the UI.dev React course.
 
+This is the capstone to the Hooks course.
+
 ## Components We Need
 * Nav
  * Top

@@ -1,36 +1,34 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { ThemeConsumer } from '../contexts/theme';
+import ThemeContext from '../contexts/theme';
 import PropTypes from 'prop-types';
 import { getFormattedDate } from '../utils/date';
 
 export function PostMetaInfo({ by, time, id, kids }) {
+  const theme = useContext( ThemeContext );
+
   return (
-    <ThemeConsumer>
-      {({ theme }) => (
-        <p className={`meta-info-${theme}`}>
-          <span>by <Link
-              to={{
-                pathname: '/user',
-                search: `?id=${by}`
-              }}
-            >
-              {by}
-            </Link>
-          </span>
-          <span> on {getFormattedDate( time )} </span>
-          {id && kids && <span>with <Link
-              to={{
-                pathname: '/post',
-                search: `?id=${id}`
-              }}
-            >
-              {! kids ? 0 : kids.length - 1}
-            </Link> comments
-          </span>}
-        </p>
-      )}
-    </ThemeConsumer>
+    <p className={`meta-info-${theme}`}>
+      <span>by <Link
+          to={{
+            pathname: '/user',
+            search: `?id=${by}`
+          }}
+        >
+          {by}
+        </Link>
+      </span>
+      <span> on {getFormattedDate( time )} </span>
+      {id && kids && <span>with <Link
+          to={{
+            pathname: '/post',
+            search: `?id=${id}`
+          }}
+        >
+          {! kids ? 0 : kids.length - 1}
+        </Link> comments
+      </span>}
+    </p>
   );
 }
 
@@ -54,7 +52,7 @@ export function PostListItem({ title, url, header = false }) {
 
 PostListItem.propTypes = {
   title: PropTypes.string.isRequired,
-  url: PropTypes.string.isRequired,
+  url: PropTypes.string,
   header: PropTypes.bool
 };
 

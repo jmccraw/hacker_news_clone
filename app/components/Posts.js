@@ -1,83 +1,81 @@
-import React from 'react';
+import React, { useState, useEffect, useReducer, useRef } from 'react';
 import { fetchMainPosts } from '../utils/api';
 import Loading from './Loading';
 import { PostsList } from './PostsList';
 
+function postsReducer( state, action ) {
+  switch ( action.type ) {
+    case 'success':
+      return {
+        ...state,
+        [action.query]: action.data,
+        error: null
+      };
+    case 'error':
+      return {
+        ...state,
+        error: 'There was an error fetching the posts'
+      };
+    default:
+      throw new Error( 'Action type not supported on this Posts component' );
+  }
+}
 
-export default class Posts extends React.Component {
-  state = {
-    query: 'top',
-    posts: {},
-    error: null
-  };
+const initialState = {
+  top: null,
+  new: null,
+  error: null
+};
+
+export default function Posts({ match }) {
+  const [query, setQuery] = useState( '/' === match.path ? 'top' : '/new' === match.path ? 'new' : '' );
+  const [state, dispatch] = useReducer( postsReducer, initialState );
+  const fetchedPostLists = useRef( [] );
+
+  useEffect( () => {
+    const path = match.path;
+
+    setQuery( query => {
+      if ( '/' === path && 'top' !== query ) {
+        return 'top';
+      } else if ( '/new' === path && 'new' !== query ) {
+        return 'new';
+      }
+
+      return query;
+    } );
+  }, [ match ] );
 
   /**
-   * When the component mounts, fetch the API information we need
+   * Fetch the API information we need
    */
-  componentDidMount() {
-    this.triggerQuerySwitch();
-  }
-
-  componentDidUpdate( prevProps ) {
-    if ( prevProps.match.path !== this.props.match.path ) {
-      this.triggerQuerySwitch();
-    }
-  }
-
-  triggerQuerySwitch() {
-    const match = this.props.match.path;
-
-    if ( '/' === match ) {
-      this.updatePostList( 'top' );
-    } else if ( '/new' === match ) {
-      this.updatePostList( 'new' );
-    }
-  }
-
-  updatePostList( query ) {
-    this.setState({
-      query,
-      error: null
-    });
-
-    if ( ! this.state.posts[query] ) {
+  useEffect( () => {
+    if ( ! fetchedPostLists.current.includes( query ) ) {
       fetchMainPosts( query )
         .then( data => {
           window.console.log( data );
-          this.setState(({ posts }) => ({
-            posts: {
-              ...posts,
-              [query]: data
-            }
-          }));
+          fetchedPostLists.current.push( query );
+          dispatch({ type: 'success', query, data });
         } )
-        .catch( () => {
+        .catch( ( error ) => {
           console.warn( `Error fetching posts: ${error}` );
 
-          this.setState({
-            error: 'There was an error fetching the posts'
-          });
+          dispatch({ type: 'error' });
         });
     }
-  }
+  }, [ query, fetchedPostLists ] );
 
-  isLoading = () => {
-    const { query, posts, error } = this.state;
+  const { error } = state;
 
-    return ! posts[query] && error === null;
-  }
+  const isLoading = () => ! state[query] && error === null;
 
-  render() {
-    const { query, posts, error } = this.state;
+  return (
+    <article className="posts">
+      {isLoading() && <Loading text="Fetching posts" />}
 
-    return (
-      <article className="posts">
-        {this.isLoading() && <Loading text="Fetching posts" />}
+      {error && <p className="center-text error">{error}</p>}
 
-        {error && <p className="center-text error">{error}</p>}
-
-        {posts[query] && <PostsList posts={posts[query]} />}
-      </article>
-    );
-  }
+      {state[query] && <PostsList posts={state[query]} />}
+    </article>
+  );
 }
